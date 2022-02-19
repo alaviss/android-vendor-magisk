@@ -1,0 +1,45 @@
+From c26b8e441b4deaf4c7391c30d241b842fb1aa307 Mon Sep 17 00:00:00 2001
+From: Leorize <leorize+oss@disroot.org>
+Date: Thu, 17 Feb 2022 22:57:33 -0600
+Subject: [PATCH] replace init with magisk in recovery if installed
+
+This is to support Magisk in legacy SAR system where the kernel will be
+configured to boot via the ramdisk (which is the recovery) where magiskinit
+will then boot into the system.
+
+Change-Id: I82a28a1a60019483c133f20fbeda3a67c55bf993
+---
+ core/Makefile | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index deea8bc6c..fa3b2647c 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -2225,7 +2225,12 @@ $(INTERNAL_RECOVERY_RAMDISK_FILES_TIMESTAMP): $(MKBOOTFS) \
+ 	# Use rsync because "cp -Rf" fails to overwrite broken symlinks on Mac.
+ 	rsync -a --exclude=sdcard $(IGNORE_RECOVERY_SEPOLICY) $(IGNORE_CACHE_LINK) $(TARGET_ROOT_OUT) $(TARGET_RECOVERY_OUT)
+ 	# Modifying ramdisk contents...
+-	$(if $(filter true,$(BOARD_BUILD_SYSTEM_ROOT_IMAGE)),, \
++	$(if $(filter true,$(BOARD_BUILD_SYSTEM_ROOT_IMAGE)), \
++	  if [ -f $(TARGET_RECOVERY_ROOT_OUT)/system/bin/magiskinit ]; then \
++	    mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/.backup && \
++	    mv $(TARGET_RECOVERY_ROOT_OUT)/init $(TARGET_RECOVERY_ROOT_OUT)/.backup/init && \
++	    mv $(TARGET_RECOVERY_ROOT_OUT)/system/bin/magiskinit $(TARGET_RECOVERY_ROOT_OUT)/init; \
++	  fi, \
+ 	  ln -sf /system/bin/init $(TARGET_RECOVERY_ROOT_OUT)/init)
+ 	# Removes $(TARGET_RECOVERY_ROOT_OUT)/init*.rc EXCEPT init.recovery*.rc.
+ 	find $(TARGET_RECOVERY_ROOT_OUT) -maxdepth 1 -name 'init*.rc' -type f -not -name "init.recovery.*.rc" | xargs rm -f
+@@ -4724,6 +4729,9 @@ define package_files-copy-root
+   if [ -d "$(strip $(1))" -a "$$(ls -A $(1))" ]; then \
+     mkdir -p $(2) && \
+     $(ACP) -rd $(strip $(1))/* $(2); \
++    if [ -d "$(strip $(1))/.backup" ]; then \
++      $(ACP) -rd $(strip $(1))/.backup $(2); \
++    fi; \
+   fi
+ endef
+ 
+-- 
+2.35.1
+

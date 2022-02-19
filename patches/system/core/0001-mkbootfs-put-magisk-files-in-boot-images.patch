@@ -1,0 +1,32 @@
+From 4043851aab3db451bcc6db6280232e3be689c3ed Mon Sep 17 00:00:00 2001
+From: Leorize <leorize+oss@disroot.org>
+Date: Fri, 18 Feb 2022 11:50:46 -0600
+Subject: [PATCH] mkbootfs: put magisk files in boot images
+
+Magisk integration requires some dotfiles to be added to the boot image,
+which are ignored by default.
+
+This commit add an exception for magisk dotfiles to be added.
+
+Change-Id: I69baf6b18bc10ef7cf16c458ffe05543556e3668
+---
+ mkbootfs/mkbootfs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/mkbootfs/mkbootfs.c b/mkbootfs/mkbootfs.c
+index 58153f3f5..35edf3d2e 100644
+--- a/mkbootfs/mkbootfs.c
++++ b/mkbootfs/mkbootfs.c
+@@ -181,7 +181,8 @@ static void _archive_dir(char *in, char *out, int ilen, int olen)
+ 
+     while((de = readdir(d)) != 0){
+             /* xxx: feature? maybe some dotfiles are okay */
+-        if(de->d_name[0] == '.') continue;
++        if(strcmp(de->d_name, ".backup") && strcmp(de->d_name, ".magisk"))
++          if(de->d_name[0] == '.') continue;
+ 
+             /* xxx: hack. use a real exclude list */
+         if(!strcmp(de->d_name, "root")) continue;
+-- 
+2.35.1
+

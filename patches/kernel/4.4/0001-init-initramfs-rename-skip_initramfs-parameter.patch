@@ -1,0 +1,32 @@
+From bc163e9eada14faf7fccb577b58292d2d17e8676 Mon Sep 17 00:00:00 2001
+From: Leorize <leorize+oss@disroot.org>
+Date: Fri, 18 Feb 2022 11:59:11 -0600
+Subject: [PATCH 1/2] init/initramfs: rename skip_initramfs parameter
+
+This forces the device to boot into the ramdisk.
+
+On legacy SAR, this must be used with a ramdisk init that is aware of
+this modification (ie. magiskinit) or the device will be stuck in
+recovery.
+
+Change-Id: I70861d9638e3eb560f9fde77e98c1860d2c66f94
+---
+ init/initramfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init/initramfs.c b/init/initramfs.c
+index 52059169f64d..f39af19ce022 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -615,7 +615,7 @@ static int __init skip_initramfs_param(char *str)
+ 	do_skip_initramfs = 1;
+ 	return 1;
+ }
+-__setup("skip_initramfs", skip_initramfs_param);
++__setup("really_skip_initramfs", skip_initramfs_param);
+ 
+ static int __init populate_rootfs(void)
+ {
+-- 
+2.35.1
+
