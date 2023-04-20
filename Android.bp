@@ -20,11 +20,11 @@ cc_prebuilt_binary {
   name: "magiskinit",
   arch: {
     arm64: {
-      required: ["magiskconfig", "magisk32.xz", "magisk64.xz"],
+      required: ["magiskconfig", "magisk32.xz", "magisk64.xz", "magiskstub.xz"],
       srcs: [":magiskinit_arm64"]
     },
     arm: {
-      required: ["magiskconfig", "magisk32.xz"],
+      required: ["magiskconfig", "magisk32.xz", "magiskstub.xz"],
       srcs: [":magiskinit_arm"]
     }
   },
